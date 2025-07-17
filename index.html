@@ -15,23 +15,6 @@
       text-align: center;
       color: #333;
     }
-    .actions {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .actions button {
-      background: #f7a6c1;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .actions button:hover {
-      background: #d88ca4;
-    }
     .grid {
       display: flex;
       gap: 20px;
@@ -99,9 +82,6 @@
 </head>
 <body>
   <h1>Malla Curricular - Psicología</h1>
-  <div class="actions">
-    <button onclick="resetProgress()">Reiniciar Progreso</button>
-  </div>
   <div class="grid" id="curriculum"></div>
 
   <script>
@@ -140,17 +120,6 @@
     ];
 
     let state = JSON.parse(localStorage.getItem('progress') || '{}');
-
-    function resetProgress() {
-      if (confirm("¿Seguro que querés reiniciar tu progreso? Esta acción no se puede deshacer.")) {
-        localStorage.removeItem('progress');
-        state = {};
-        render();
-      }
-    };
-        render();
-      }
-    }
 
     function render() {
       const grid = document.getElementById("curriculum");
