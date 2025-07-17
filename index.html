@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f9cce3;
+      background: #fdecef;
       margin: 0;
       padding: 20px;
     }
@@ -15,13 +15,30 @@
       text-align: center;
       color: #333;
     }
+    .actions {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .actions button {
+      background: #f7a6c1;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .actions button:hover {
+      background: #d88ca4;
+    }
     .grid {
       display: flex;
       gap: 20px;
       overflow-x: auto;
     }
     .year {
-      background: #fff;
+      background: #fff0f5;
       border-radius: 12px;
       padding: 10px;
       flex: 1;
@@ -39,16 +56,20 @@
       padding: 10px;
       border-radius: 8px;
       cursor: pointer;
-      background: #e0f7fa;
-      transition: 0.3s;
+      background: #f9cce3;
+      transition: 0.3s, transform 0.2s;
       position: relative;
     }
+    .subject:hover {
+      transform: scale(1.02);
+    }
     .subject.completed {
-      background: #c8e6c9;
+      background: #f7a6c1;
       text-decoration: line-through;
+      animation: fadeIn 0.3s ease-in-out;
     }
     .subject.locked {
-      background: #eee;
+      background: #f3d5dc;
       cursor: not-allowed;
       color: #999;
     }
@@ -58,7 +79,7 @@
       left: 105%;
       top: 50%;
       transform: translateY(-50%);
-      background: #444;
+      background: #d88ca4;
       color: white;
       padding: 5px 10px;
       border-radius: 5px;
@@ -70,10 +91,17 @@
     .subject.locked:hover::after {
       opacity: 1;
     }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
   <h1>Malla Curricular - Psicología</h1>
+  <div class="actions">
+    <button onclick="resetProgress()">Reiniciar Progreso</button>
+  </div>
   <div class="grid" id="curriculum"></div>
 
   <script>
@@ -111,7 +139,18 @@
       { year: "Quinto Año", name: "Requisito Tesis" },
     ];
 
-    const state = JSON.parse(localStorage.getItem('progress') || '{}');
+    let state = JSON.parse(localStorage.getItem('progress') || '{}');
+
+    function resetProgress() {
+      if (confirm("¿Seguro que querés reiniciar tu progreso? Esta acción no se puede deshacer.")) {
+        localStorage.removeItem('progress');
+        state = {};
+        render();
+      }
+    };
+        render();
+      }
+    }
 
     function render() {
       const grid = document.getElementById("curriculum");
