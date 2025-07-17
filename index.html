@@ -144,7 +144,11 @@
             div.setAttribute("data-tooltip", `Faltan: ${missing.join(', ')}`);
           } else {
             div.addEventListener("click", () => {
-              state[subject.name] = true;
+              if (state[subject.name]) {
+                delete state[subject.name];
+              } else {
+                state[subject.name] = true;
+              }
               localStorage.setItem('progress', JSON.stringify(state));
               render();
             });
