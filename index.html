@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Curricular Psicología</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f7f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .grid {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    .year {
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      flex: 1;
+      min-width: 200px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .year h2 {
+      text-align: center;
+      color: #4a6572;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .subject {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #e0f7fa;
+      transition: 0.3s;
+      position: relative;
+    }
+    .subject.completed {
+      background: #c8e6c9;
+      text-decoration: line-through;
+    }
+    .subject.locked {
+      background: #eee;
+      cursor: not-allowed;
+      color: #999;
+    }
+    .subject.locked::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 105%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #444;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .subject.locked:hover::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular - Psicología</h1>
+  <div class="grid" id="curriculum"></div>
+
+  <script>
+    const subjects = [
+      { year: "Primer Año", name: "Psicologia General" },
+      { year: "Primer Año", name: "Estadistica" },
+      { year: "Primer Año", name: "Psicologia Social" },
+      { year: "Primer Año", name: "Psicoanalisis Freud" },
+      { year: "Primer Año", name: "Psic. y Epist. Genetica" },
+      { year: "Primer Año", name: "Neurofisiologia" },
+      { year: "Segundo Año", name: "Historia de la Psicologia", requires: ["Psicologia General"] },
+      { year: "Segundo Año", name: "Metodologia de la Investigacion", requires: ["Psicologia General", "Estadistica"] },
+      { year: "Segundo Año", name: "Salud Publica y Mental", requires: ["Psicologia Social", "Metodologia de la Investigacion"] },
+      { year: "Segundo Año", name: "Teoria y Tecnica de Grupos", requires: ["Psicologia Social", "Psicoanalisis Freud"] },
+      { year: "Segundo Año", name: "Ps. Evolutiva Niñez", requires: ["Psicoanalisis Freud", "Psic. y Epist. Genetica"] },
+      { year: "Segundo Año", name: "Ps. Evolutiva Adolescencia", requires: ["Ps. Evolutiva Niñez"] },
+      { year: "Tercer Año", name: "Psicopatología", requires: ["Neurofisiologia", "Ps. Evolutiva Adolescencia"] },
+      { year: "Tercer Año", name: "T. y T. de Explor. Diag. Ps. Mod I", requires: ["Metodologia de la Investigacion", "Psicopatología"] },
+      { year: "Tercer Año", name: "T. y T. de Explor. Diag. Ps. Mod II", requires: ["T. y T. de Explor. Diag. Ps. Mod I"] },
+      { year: "Tercer Año", name: "Materia Electiva I" },
+      { year: "Tercer Año", name: "Materia Electiva II" },
+      { year: "Tercer Año", name: "Inglés Mod I" },
+      { year: "Tercer Año", name: "Inglés Mod II" },
+      { year: "Cuarto Año", name: "Ps. Etica y DD. HH", requires: ["Psicologia Social", "Historia de la Psicologia"] },
+      { year: "Cuarto Año", name: "Psicologia Educacional", requires: ["Ps. Evolutiva Adolescencia", "Teoria y Tecnica de Grupos", "Salud Publica y Mental"] },
+      { year: "Cuarto Año", name: "Psicologia Institucional", requires: ["Salud Publica y Mental", "Teoria y Tecnica de Grupos"] },
+      { year: "Cuarto Año", name: "Psicologia del Trabajo", requires: ["Salud Publica y Mental", "Teoria y Tecnica de Grupos", "T. y T. de Explor. Diag. Ps. Mod II"] },
+      { year: "Cuarto Año", name: "CP. y P. Clinica de Adultos", requires: ["T. y T. de Explor. Diag. Ps. Mod II"] },
+      { year: "Cuarto Año", name: "Psicologia Juridica", requires: ["T. y T. de Explor. Diag. Ps. Mod II"] },
+      { year: "Cuarto Año", name: "Psicoterapias", requires: ["T. y T. de Explor. Diag. Ps. Mod II"] },
+      { year: "Quinto Año", name: "Practica Prof. o de Investig." },
+      { year: "Quinto Año", name: "Materia Electiva/Practica" },
+      { year: "Quinto Año", name: "Materia Electiva II" },
+      { year: "Quinto Año", name: "Materia Electiva III" },
+      { year: "Quinto Año", name: "Requisito Tesis" },
+    ];
+
+    const state = JSON.parse(localStorage.getItem('progress') || '{}');
+
+    function render() {
+      const grid = document.getElementById("curriculum");
+      grid.innerHTML = "";
+      const years = [...new Set(subjects.map(s => s.year))];
+      years.forEach(year => {
+        const col = document.createElement("div");
+        col.className = "year";
+        col.innerHTML = `<h2>${year}</h2>`;
+        subjects.filter(s => s.year === year).forEach(subject => {
+          const div = document.createElement("div");
+          div.className = "subject";
+          div.textContent = subject.name;
+
+          const isCompleted = !!state[subject.name];
+          const missing = (subject.requires || []).filter(req => !state[req]);
+
+          if (isCompleted) {
+            div.classList.add("completed");
+          } else if (missing.length) {
+            div.classList.add("locked");
+            div.setAttribute("data-tooltip", `Faltan: ${missing.join(', ')}`);
+          } else {
+            div.addEventListener("click", () => {
+              state[subject.name] = true;
+              localStorage.setItem('progress', JSON.stringify(state));
+              render();
+            });
+          }
+
+          col.appendChild(div);
+        });
+        grid.appendChild(col);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
