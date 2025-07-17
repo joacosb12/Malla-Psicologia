@@ -139,7 +139,9 @@
 
           if (isCompleted) {
             div.classList.add("completed");
-          } else if (missing.length) {
+          }
+
+          if (missing.length) {
             div.classList.add("locked");
             div.setAttribute("data-tooltip", `Faltan: ${missing.join(', ')}`);
           } else {
